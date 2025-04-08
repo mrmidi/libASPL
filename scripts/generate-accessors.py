@@ -7,6 +7,7 @@ import jinja2
 import json
 import os
 import sys
+from datetime import UTC as timezone_utc
 
 class_fields = {
     'class': None,
@@ -679,7 +680,7 @@ text = template.render(
     **klass,
     generator_script=os.path.basename(__file__),
     generator_input=os.path.basename(args.i),
-    timestamp=datetime.datetime.utcnow().strftime("%a %b %d %H:%M:%S %Y UTC"),
+    timestamp=datetime.datetime.now(timezone_utc).strftime("%a %b %d %H:%M:%S %Y UTC"),
     )
 
 with open(args.o, 'w') as out:
