@@ -7,6 +7,8 @@ import os
 import re
 import subprocess
 
+from datetime import UTC as timezone_utc
+
 # check if selector a is "better" than selector b
 def selector_is_better(a, b):
     # prefer selector that start with theese prefixes
@@ -258,7 +260,7 @@ text = template.render(
     fmtflag2code=fmtflag2code,
     generator_script=os.path.basename(__file__),
     generator_input=input_file,
-    timestamp=datetime.datetime.utcnow().strftime("%a %b %d %H:%M:%S %Y UTC"),
+    timestamp=datetime.datetime.now(timezone_utc).strftime("%a %b %d %H:%M:%S %Y UTC"),
     )
 
 with open(args.o, 'w') as out:
