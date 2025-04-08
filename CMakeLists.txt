@@ -135,15 +135,31 @@ list(APPEND GENERATED_SOURCES ${BRIDGE_OUTPUT_CPP})
 
 # Generate strings
 set(STRINGS_OUTPUT_CPP "${GENERATED_SRC_DIR}/Strings.g.cpp")
+
+if(CMAKE_OSX_SYSROOT)
+  set(ASPL_SYSROOT_PATH ${CMAKE_OSX_SYSROOT})
+else()
+  # Fallback if CMAKE_OSX_SYSROOT is empty (less reliable)
+  execute_process(
+    COMMAND xcrun --sdk macosx --show-sdk-path
+    OUTPUT_VARIABLE ASPL_SYSROOT_PATH
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+    ERROR_QUIET
+  )
+  if(NOT ASPL_SYSROOT_PATH)
+     message(FATAL_ERROR "libASPL: Could not determine macOS SDK path (CMAKE_OSX_SYSROOT is empty and xcrun failed).")
+  endif()
+endif()
+message(STATUS "libASPL: Using sysroot for generate-strings.py: ${ASPL_SYSROOT_PATH}")
+
 add_custom_command(
   OUTPUT ${STRINGS_OUTPUT_CPP}
   COMMAND ${PYTHON_EXECUTABLE}
     "${PROJECT_SOURCE_DIR}/scripts/generate-strings.py"
     -c "${CMAKE_CXX_COMPILER}"
-    -s "${CMAKE_OSX_SYSROOT}"
+    -s "${ASPL_SYSROOT_PATH}" # <<< Use the determined path
     -o ${STRINGS_OUTPUT_CPP}
-  DEPENDS "${PROJECT_SOURCE_DIR}/scripts/generate-strings.py" # Add dependency if strings are static
-          # Add dependencies on actual string source files if applicable
+  DEPENDS "${PROJECT_SOURCE_DIR}/scripts/generate-strings.py"
   COMMENT "Generating Strings.g.cpp"
   VERBATIM
 )
