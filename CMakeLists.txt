@@ -1,4 +1,3 @@
-# libASPL/CMakeLists.txt (Your Fork)
 
 # Use a modern minimum version compatible with your main project
 cmake_minimum_required(VERSION 3.16)
@@ -150,9 +149,6 @@ add_custom_command(
 )
 list(APPEND GENERATED_SOURCES ${STRINGS_OUTPUT_CPP})
 
-# Add generation target as a dependency for the generated files lists
-add_dependencies(aspl_generate_sources ${GENERATED_SOURCES})
-
 # --- Library Target ---
 # Collect original source files
 set(ASPL_SOURCES
@@ -177,8 +173,9 @@ add_library(${LIB_TARGET} STATIC
   ${GENERATED_SOURCES} # Add the list of generated files
 )
 
-# Add dependency: library depends on code generation being complete
+# --- Add CORRECT dependency: library depends on code generation target ---
 add_dependencies(${LIB_TARGET} aspl_generate_sources)
+# ---
 
 # Apply compile flags
 target_compile_options(${LIB_TARGET} PRIVATE ${ASPL_COMPILE_FLAGS})
@@ -186,11 +183,9 @@ target_compile_options(${LIB_TARGET} PRIVATE ${ASPL_COMPILE_FLAGS})
 # Include directories
 target_include_directories(${LIB_TARGET}
   PUBLIC
-    # Headers needed by users of libASPL
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
   PRIVATE
-    # Internal headers and generated source location
     ${PROJECT_SOURCE_DIR}/src
     ${GENERATED_SRC_DIR}
 )
