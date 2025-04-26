@@ -5,9 +5,27 @@ cmake_minimum_required(VERSION 3.16)
 project(aspl CXX)
 
 # --- Python detection ---
-find_package(Python3 REQUIRED COMPONENTS Interpreter)
-set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
-message(STATUS "libASPL: Using Python interpreter: ${PYTHON_EXECUTABLE}")
+# Default to your known working interpreter
+set(DEFAULT_PYTHON_EXECUTABLE "/Library/Frameworks/Python.framework/Versions/3.12/bin/python3")
+
+# Allow user to override with -DPYTHON_EXECUTABLE=...
+if(NOT PYTHON_EXECUTABLE)
+  set(PYTHON_EXECUTABLE "${DEFAULT_PYTHON_EXECUTABLE}" CACHE FILEPATH "Python interpreter to use")
+endif()
+
+# Check if the specified Python executable exists
+if(NOT EXISTS "${PYTHON_EXECUTABLE}")
+  message(WARNING "libASPL: Specified Python executable '${PYTHON_EXECUTABLE}' not found. Falling back to system 'python3'.")
+  find_program(PYTHON_EXECUTABLE_FALLBACK python3 REQUIRED)
+  set(PYTHON_EXECUTABLE "${PYTHON_EXECUTABLE_FALLBACK}" CACHE FILEPATH "Python interpreter fallback" FORCE)
+endif()
+
+# Final check
+if(NOT EXISTS "${PYTHON_EXECUTABLE}")
+  message(FATAL_ERROR "libASPL: Could not find a valid Python executable.")
+endif()
+
+message(STATUS "libASPL: Final Python interpreter: ${PYTHON_EXECUTABLE}")
 
 # --- Version Handling ---
 # Attempt to get version from git tag, provide a fallback
