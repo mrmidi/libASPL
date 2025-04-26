@@ -4,6 +4,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(aspl CXX)
 
+# --- Python detection ---
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+message(STATUS "libASPL: Using Python interpreter: ${PYTHON_EXECUTABLE}")
+
 # --- Version Handling ---
 # Attempt to get version from git tag, provide a fallback
 find_package(Git QUIET)
